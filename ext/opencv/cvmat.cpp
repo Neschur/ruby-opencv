@@ -2042,9 +2042,22 @@ rb_in_range(VALUE self, VALUE min, VALUE max)
 {
   CvArr* self_ptr = CVARR(self);
   CvSize size = cvGetSize(self_ptr);
-  VALUE dest = new_object(size, CV_8UC1);
+  VALUE dest = new_object(size, IPL_DEPTH_8U);
   try {
-    cvInRangeS(self_ptr, VALUE_TO_CVSCALAR(min), VALUE_TO_CVSCALAR(max), CVARR(dest));
+    if (rb_obj_is_kind_of(min, rb_klass) && rb_obj_is_kind_of(max, rb_klass))
+      cvInRange(self_ptr, CVARR(min), CVARR(max), CVARR(dest));
+    else if (rb_obj_is_kind_of(min, rb_klass)) {
+      VALUE tmp = new_object(size, cvGetElemType(self_ptr));
+      cvSet(CVARR(tmp), VALUE_TO_CVSCALAR(max));
+      cvInRange(self_ptr, CVARR(min), CVARR(tmp), CVARR(dest));
+    }
+    else if (rb_obj_is_kind_of(max, rb_klass)) {
+      VALUE tmp = new_object(size, cvGetElemType(self_ptr));
+      cvSet(CVARR(tmp), VALUE_TO_CVSCALAR(min));
+      cvInRange(self_ptr, CVARR(tmp), CVARR(max), CVARR(dest));
+    }
+    else
+      cvInRangeS(self_ptr, VALUE_TO_CVSCALAR(min), VALUE_TO_CVSCALAR(max), CVARR(dest));
   }
   catch (cv::Exception& e) {
     raise_cverror(e);
