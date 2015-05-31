@@ -2043,7 +2043,7 @@ rb_in_range(VALUE self, VALUE min, VALUE max)
   CvArr* self_ptr = CVARR(self);
   CvSize size = cvGetSize(self_ptr);
   IplImage* dst = NULL;
-  dest = cvCreateImage( cvGetSize(image), IPL_DEPTH_8U, 1 );
+  dest = cvCreateImage( cvGetSize(self), IPL_DEPTH_8U, 1 );
   // VALUE dest = new_object(size, IPL_DEPTH_8U);
   cvInRangeS(self_ptr, VALUE_TO_CVSCALAR(min), VALUE_TO_CVSCALAR(max), CVARR(dest));
   return dest;
